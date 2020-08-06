@@ -1,73 +1,73 @@
-import React from 'react';
+import React, { useState, FormEvent } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
+import api from '../../services/api';
 
 import { Title, Form, Repositories } from './styles';
 
-const Dashboard: React.FC = () => (
-  <>
-    <img 
-      src="https://xesque.rocketseat.dev/platform/1587379765556-attachment.svg"
-      alt="git hub explorer"
-    />
+interface Repository {
+  full_name: string;
+  description: string;
+  owner: {
+    login: string;
+    avatar_url: string;
 
-    <Title>
-        Explore repositórios no GitHub
-    </Title>
+  }
+}
 
-    <Form action="">
-      <input placeholder="Digite o nome do repositório" />
-      <button type="submit">
-        Pesquisar
-      </button>
-    </Form>
+const Dashboard: React.FC = () => {
+  const [newRepo, setNewRepo] = useState('');
+  const [ repositories, setRepositories ] = useState<Repository[]>([]);
 
-    <Repositories>
-      <a href="teste">
-        <img
-         src="https://avatars3.githubusercontent.com/u/29736189?s=400&u=698ae6f217cb4fe0aeacd72f7cf2331a0c0527a1&v=4" 
-         alt="Giovanna"
+  async function handleAddRepository(event: FormEvent<HTMLFormElement>): Promise<void>{
+    event.preventDefault();
+    
+    const response = await api.get(`repos/${newRepo}`);
+
+    const repository = response.data;
+
+    setRepositories([...repositories, repository]);
+
+  }
+  
+  return(
+    <>
+      <img 
+        src="https://xesque.rocketseat.dev/platform/1587379765556-attachment.svg"
+        alt="git hub explorer"
+      />
+
+      <Title>
+          Explore repositórios no GitHub
+      </Title>
+
+      <Form onSubmit={handleAddRepository}>
+        <input
+         value={newRepo}
+         onChange={ (e) => setNewRepo(e.target.value)}
+         placeholder="Digite o nome do repositório"
         />
-        <div>
-          <strong>giovannabadaro/machine-learning-brazilian-cities</strong>
-          <p>
-            A collection of 79 attributes from Brazilian Cities. 
-            The implementation does a simple exploration about the dataset and
-            use random forest to discover some informations</p>
-        </div>
-        <FiChevronRight size={30} />
-      </a>
+        <button type="submit">
+          Pesquisar
+        </button>
+      </Form>
 
-      <a href="teste">
-        <img
-         src="https://avatars3.githubusercontent.com/u/29736189?s=400&u=698ae6f217cb4fe0aeacd72f7cf2331a0c0527a1&v=4" 
-         alt="Giovanna"
-        />
-        <div>
-          <strong>giovannabadaro/machine-learning-brazilian-cities</strong>
-          <p>
-            A collection of 79 attributes from Brazilian Cities. 
-            The implementation does a simple exploration about the dataset and
-            use random forest to discover some informations</p>
-        </div>
-        <FiChevronRight size={30} />
-      </a>
-
-      <a href="teste">
-        <img
-         src="https://avatars3.githubusercontent.com/u/29736189?s=400&u=698ae6f217cb4fe0aeacd72f7cf2331a0c0527a1&v=4" 
-         alt="Giovanna"
-        />
-        <div>
-          <strong>giovannabadaro/machine-learning-brazilian-cities</strong>
-          <p>
-            A collection of 79 attributes from Brazilian Cities. 
-            The implementation does a simple exploration about the dataset and
-            use random forest to discover some informations</p>
-        </div>
-        <FiChevronRight size={30} />
-      </a>
-    </Repositories>
-  </>
-);
+      <Repositories>
+       {repositories.map(repository => (
+          <a key={repository.full_name} href="teste">
+          <img
+          src={repository.owner.avatar_url}
+          alt={repository.owner.login}
+          />
+          <div>
+            <strong>{repository.full_name}</strong>
+            <p>{repository.description}</p>
+          </div>
+          <FiChevronRight size={30} />
+        </a>
+       ))}
+      </Repositories>
+    </>
+  );
+};
 
 export default Dashboard;
