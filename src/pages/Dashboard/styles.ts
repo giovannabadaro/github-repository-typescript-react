@@ -100,4 +100,9 @@ export const Repositories = styled.div`
   }
 `;
 
+export const Error = styled.span`
+  display: bloc;
+  color: red;
+  margin-top: 8px;
+`;
 
